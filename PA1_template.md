@@ -194,7 +194,7 @@ daily_activity_wk <- aggregate(steps~interval+weekday, data = daily_activity_wk,
 daily_activity_wk$weekday <- factor(daily_activity_wk$weekday, levels = c(TRUE, FALSE), labels = c("Weekday", "Weekend"))
 
 p2 <- ggplot(daily_activity_wk, aes(x = interval, y = steps))
-p2 + facet_grid(.~weekday) + geom_line(aes(color = weekday), show.legend = F) + guides(fill = F)+ ggtitle("Average Number of Steps Taken on Weekday/Weekend") + xlab("Interval") + ylab("Average Number of Steps")
+p2 + facet_grid(weekday~.) + geom_line(aes(color = weekday), show.legend = F) + guides(fill = F)+ ggtitle("Average Number of Steps Taken on Weekday/Weekend") + xlab("Interval") + ylab("Average Number of Steps")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)
