@@ -63,6 +63,14 @@ paste("Maximum Average Steps in Interval: ", round(daily_activity[which.max(dail
 ```
 
 ```r
+paste("Maximum Average Steps - Interval Number: ", daily_activity[which.max(daily_activity$steps), ]$interval)
+```
+
+```
+## [1] "Maximum Average Steps - Interval Number:  835"
+```
+
+```r
 p1 <- ggplot(daily_activity, aes(x = interval, y = steps)) 
 p1 + geom_line() + ggtitle("Daily Activity Time Series") + xlab("Interval Number") + ylab("Average Steps \n(per day, by interval)")
 ```

@@ -50,6 +50,7 @@ Below you will see the maximum average daily steps in a given 5-minute video. Ad
 ```{r, echo=TRUE, fig.width = 7, fig.height = 7}
 daily_activity <- aggregate(steps~interval, data = data, mean)
 paste("Maximum Average Steps in Interval: ", round(daily_activity[which.max(daily_activity$steps), ]$steps, digits = 2))
+paste("Maximum Average Steps - Interval Number: ", daily_activity[which.max(daily_activity$steps), ]$interval)
 
 p1 <- ggplot(daily_activity, aes(x = interval, y = steps)) 
 p1 + geom_line() + ggtitle("Daily Activity Time Series") + xlab("Interval Number") + ylab("Average Steps \n(per day, by interval)")
