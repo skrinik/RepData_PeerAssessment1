@@ -4,6 +4,10 @@ Sean Krinik
 
 ## Loading and preprocessing the data
 
+Below is the code necessary to read in the data from the provided *.zip* file. Additionally, I have included all necessary libraries for the graphs and transformations ahead.   
+The *data* variable that is created with the data from the *activity.csv* file is stripped of the *NA* values here. The data set will be reimplemented later on to impute the NA values.  
+
+
 ```r
 setwd("~/Documents/Docs/R Programming CourseEra/RepData_PeerAssessment1")
 #Install necessary packages:
@@ -15,6 +19,9 @@ data <- filter(data, !is.na(data$steps)) #Get rid of the NA values
 ```
 
 ## What is mean total number of steps taken per day?
+
+The mean total number of steps per day can be seen in the printed table below, along with a histogram showing the frequency of total step numerical values for each day:  
+
 
 ```r
 total_steps <- with(data, aggregate(steps, by = list(ymd(date)), sum))
@@ -43,6 +50,9 @@ p + geom_histogram(bins = length(total_steps$Day)) +
 
 ## What is the average daily activity pattern?
 
+Below you will see the maximum average daily steps in a given 5-minute video. Additionally, you will see a graphical representation of the daily activity by 5-minute interval. 
+
+
 ```r
 daily_activity <- aggregate(steps~interval, data = data, mean)
 paste("Maximum Average Steps in Interval: ", round(daily_activity[which.max(daily_activity$steps), ]$steps, digits = 2))
@@ -59,8 +69,16 @@ p1 + geom_line() + ggtitle("Daily Activity Time Series") + xlab("Interval Number
 
 ![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)
 
+###Conclusion:
+
+In examining the time series graph, interval 0 represents midnight of the day and interval 2355 (x-limit) represents the final 5-minute interval of the day. Thus, you can see most of the steps throughout the day occur in the late morning and throughout the mid-day intervals, on average.
 
 ## Imputing missing values
+
+The data set from *activity.csv* is reloaded to include the *NA* values omitted previously. Now, how do we interpret these *NA* values? The method below gets the indicies of the *NA* values then creates a new vector with replacement values from the mean daily values. Using this vector of mean daily values by interval, the intervals of the *NA* indicies are then matched and replaced with the mean values. Once the replacement is achieved, the data is mutated back into the full data set.  
+In summary, the method peels off the steps column from the data frame, changes the *NA* values to their respective mean values by interval, then the column is put pack into the data frame.  
+You'll find an amended total daily steps histogram that now includes the imputed values.
+
 
 ```r
 #Simply reload data with NA values now:
@@ -105,6 +123,47 @@ table(is.na(mean_na_data$steps))
 total_imputed <- with(mean_na_data, aggregate(steps, by = list(ymd(date)), sum))
 total_imputed <- rename(total_imputed, Day = Group.1, Steps = x)
 
+#Mean and Median of Total Steps Imputed
+mean_med_na <- data.frame(mean(total_imputed$Steps), as.numeric(median(total_imputed$Steps)), row.names = "Steps")
+names(mean_med_na) <-c("Mean of total steps", "Median of total steps")
+mean_med_na
+```
+
+```
+##       Mean of total steps Median of total steps
+## Steps            10766.19              10766.19
+```
+
+```r
+### Compare Boxplots: 
+par(mfrow = c(1,2))
+boxplot(total_steps$Steps, main = "Boxplot for Total Steps \n(NA Omitted)", ylab = "Total Steps")
+boxplot(total_imputed$Steps, main = "Boxplot for Total Steps \n(NA Imputed)", ylab = "Total Steps")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)
+
+```r
+#Quantiles: NA Omitted 
+summary(total_steps$Steps) 
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    8841   10760   10770   13290   21190
+```
+
+```r
+#Quantiles: NA Imputed
+summary(total_imputed$Steps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    9819   10770   10770   12810   21190
+```
+
+```r
 #Histogram with imputed missing data:
 p <- ggplot(total_imputed, aes(Steps))
 p + geom_histogram(bins = length(total_imputed$Day)) + 
@@ -112,8 +171,11 @@ p + geom_histogram(bins = length(total_imputed$Day)) +
     ggtitle("Histogram of Total Steps Per Day \nWith Mean Imputed NA Values ") + guides(fill = F)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)
+![](PA1_template_files/figure-html/unnamed-chunk-4-2.png)
+###Conclusion:
 
+As you can see by the comparison boxplots and printed quantiles, the imputed values cause a change in the quantiles of the total steps per day. Additionally, you'll see frequencies on the histogram have increased since there are more intervals with step values.  
+By imputing the *NA's*, we tighten the quantiles of the total steps per day translating to adding more density toward the mean of the total steps. However, as seen in the boxplot for the imputed values, we've caused the 1st and 3rd quartiles to be more central to the median (result of adding density toward the mean), but many of our values have become outliers. Imputing the mean data for the *NA's* seems to have skewed our data slightly introducing more error. 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
@@ -129,3 +191,6 @@ p2 + facet_grid(.~weekday) + geom_line(aes(color = weekday), show.legend = F) + 
 
 ![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)
 
+###Conclusion:
+
+Examining the two graphs shows us that there are changes in the consistency of steps throughout the day, as well as the frequency of high step counts. Weekends seem to show more activity later at night, and more consistent numbers of steps throughout the day. Weekdays give us a very high peak for steps in the late morning but as the day progresses, the number of steps tends to not be as consistent. Additionally, late night activity diminishes more quickly on average on weekdays versus weekends where there is more late night activity as seen in the high interval numbers on the blue plot. 
